@@ -1,5 +1,7 @@
 package io.jzheaux.springsecurity.resolutions;
 
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,9 +34,9 @@ public class ResolutionController {
 	}
 
 	@PostMapping("/resolution")
-	public Resolution make(@RequestBody String text) {
-		String owner = "user";
-		Resolution resolution = new Resolution(text, owner);
+	public Resolution make(@CurrentSecurityContext SecurityContext ctx, @RequestBody String text) {
+		User owner = (User) ctx.getAuthentication().getPrincipal();
+		Resolution resolution = new Resolution(text, owner.username);
 		return this.resolutions.save(resolution);
 	}
 

@@ -34,9 +34,8 @@ public class ResolutionController {
 	}
 
 	@PostMapping("/resolution")
-	public Resolution make(@CurrentSecurityContext SecurityContext ctx, @RequestBody String text) {
-		User owner = (User) ctx.getAuthentication().getPrincipal();
-		Resolution resolution = new Resolution(text, owner.username);
+	public Resolution make(@CurrentUsername String owner, @RequestBody String text) {
+		Resolution resolution = new Resolution(text, owner);
 		return this.resolutions.save(resolution);
 	}
 

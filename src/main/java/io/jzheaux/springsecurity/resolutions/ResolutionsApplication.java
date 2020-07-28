@@ -10,7 +10,7 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import javax.sql.DataSource;
 
 import static org.springframework.http.HttpMethod.GET;
-
+@EnableWebSecurity
 @SpringBootApplication
 public class ResolutionsApplication extends WebSecurityConfigurerAdapter {
 

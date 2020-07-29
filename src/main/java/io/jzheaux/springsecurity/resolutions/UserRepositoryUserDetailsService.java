@@ -6,55 +6,57 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class UserRepositoryUserDetailsService implements UserDetailsService {
     private final UserRepository users;
 
+
     public UserRepositoryUserDetailsService(UserRepository users) {
         this.users = users;
     }
     private static class BridgeUser extends User implements UserDetails{
-        public BridgeUser(User user){
+        private final Collection<GrantedAuthority> authorities;
+
+        public BridgeUser(User user, Collection<GrantedAuthority> authorities){
             super(user);
+            this.authorities = authorities;
         }
 
-        @Override
-        public List<GrantedAuthority> getAuthorities() {
-            return this.userAuthorities.stream()
-                    .map(UserAuthority::getAuthority)
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return authorities;
         }
 
-        //todo understand this above
-
-        @Override
         public boolean isAccountNonExpired() {
             return this.enabled;
         }
 
-        @Override
         public boolean isAccountNonLocked() {
             return this.enabled;
         }
 
-        @Override
         public boolean isCredentialsNonExpired() {
             return this.enabled;
         }
     }
+    private BridgeUser map(User user){
+        Collection<GrantedAuthority> authorities = new HashSet<>();
+        for (UserAuthority userAuthority: user.getUserAuthorities()) {
+            String authority = userAuthority.getAuthority();
+            if("ROLE_ADMIN".equals(authority)){
 
+            }
+
+        }
+        return new BridgeUser(user, authorities);
+    }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.users.findByUsername(username)
-                .map(BridgeUser::new)
-                .orElseThrow(() -> new UsernameNotFoundException("invalid user"));
+                .map(this::map)
+                .orElseThrow(() -> new UsernameNotFoundException("no user"));
     }
 }

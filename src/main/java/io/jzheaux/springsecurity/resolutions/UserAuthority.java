@@ -11,8 +11,8 @@ public class UserAuthority {
     @Column
     String authority;
 
-    @JoinColumn(name = "username",referencedColumnName = "username")
     @ManyToOne
+    @JoinColumn(name = "username",referencedColumnName = "username")
     User user;
 
     public UserAuthority() {
